@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class playerControl : MonoBehaviour
 {
+    private bool movable;
     // Start is called before the first frame update
     void Start()
     {
-        
+        movable = true;
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        
-        float dis = (GameObject.Find("Ending_Trigger").GetComponent<Transform>().position - this.GetComponent<Transform>().position).sqrMagnitude;
-        //print("Distance to Ending_Trigger"+dis.ToString());
+        if (!this.movable)
+            return;
         float x = this.GetComponent<Transform>().position.x;
 		float y = this.GetComponent<Transform>().position.y;
         if (x > constant.MAX_PLAYER_MOVABLE_WIDTH)
@@ -51,4 +51,12 @@ public class playerControl : MonoBehaviour
 
     }
 
+    public void EnableMove()
+    {
+        this.movable = true;
+    }
+    public void DisableMove()
+    {
+        this.movable = false;
+    }
 }

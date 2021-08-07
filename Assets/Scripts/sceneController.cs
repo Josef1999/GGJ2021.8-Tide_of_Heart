@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class sceneController : MonoBehaviour
 {
@@ -10,9 +11,9 @@ public class sceneController : MonoBehaviour
     private int interacted_item_num;
     private int cur_scene_no;
     private int scenes_cnt;
+    private int passed_scenes_cnt;
     private List<Scene> scenes;
-    private Object[] target_icons;
-    private Object[] maps;
+
     private GameObject cur_map;
 
     void Start()
@@ -20,27 +21,69 @@ public class sceneController : MonoBehaviour
         InitScenes();
         GenerateScene();
     }
+
     private void Update()
     {
 
+        UI_Update();
+
+
+        if (cur_scene_no == 0)
+        {
+            if(GameObject.Find("Bgm").GetComponent<bgmController>().GetDis()<0.1f && Input.GetKeyDown(KeyCode.Space))
+            {
+                True_Ending();
+            }
+        }
         if (interacted_item_num >= item_num)
             SwitchScene();
     }
-
-    void InitScenes()
+    void UI_Update()
     {
-        target_icons = Resources.LoadAll("Target_Icon", typeof(Sprite));
-        maps = Resources.LoadAll("Map", typeof(GameObject));
+        GameObject.Find("Canvas/Task_Status").GetComponent<Text>().text = TaskStatus();
+        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().text = passed_scenes_cnt.ToString();
+        GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().text = scenes[cur_scene_no]._text;
+        GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().text = "";
+    }
+    string TaskStatus()
+    {
+
+        return interacted_item_num.ToString() + "/" + item_num.ToString();
+    }
+    void InitScenes()
+    { 
+        var target_icons = Resources.LoadAll("Target_Icon", typeof(Sprite));
+        var maps = Resources.LoadAll("Map", typeof(GameObject));
+        var texts = Resources.LoadAll("Text");
+
         scenes_cnt = maps.Length;
         scenes = new List<Scene>();
         for (int i = 0; i < scenes_cnt; i++)
         {
-            scenes.Add(new Scene((Sprite)target_icons[i * 2], (Sprite)target_icons[i * 2 + 1], (GameObject)maps[i]));
+            scenes.Add(new Scene(
+                (Sprite)target_icons[i * 2], 
+                (Sprite)target_icons[i * 2 + 1], 
+                (GameObject)maps[i], 
+                texts[i].ToString()
+                )
+                );
         }
-        cur_scene_no = 0;
+        cur_scene_no = 1;
+        passed_scenes_cnt = 0;
+    }
+    void UIOff()
+    {
+        GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = false;
+
+        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().enabled = false;
+        GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().enabled = false;
+        GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().enabled = false;
+
     }
     void SwitchScene()
     {
+        UIOff();
+        EnableBlackScreen();
         DestoryItems();
         if (cur_scene_no >= scenes_cnt - 1)
         {
@@ -50,7 +93,21 @@ public class sceneController : MonoBehaviour
         else
             cur_scene_no++;
         GenerateScene();
+        SetBGM();
+        StartCoroutine(WaitAndDisableBlackScreen(1F));
+ 
+
     }
+
+    IEnumerator WaitAndDisableBlackScreen(float waitTime)
+    {
+        GameObject.Find("Player").GetComponent<playerControl>().DisableMove();
+        yield return new WaitForSeconds(waitTime);
+        //等待之后执行的动作  
+        DisableBlackScreen();
+        GameObject.Find("Player").GetComponent<playerControl>().EnableMove();
+        GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = true;
+    }  
     void GenerateScene()
     {
         print(cur_scene_no);
@@ -85,7 +142,9 @@ public class sceneController : MonoBehaviour
     }
     void True_Ending()
     {
-        //todo
+        GameObject.Find("Player").GetComponent<playerControl>().DisableMove();
+
+        print("True Ending");
     }
     public void AddItemNum()
     {
@@ -115,12 +174,28 @@ public class sceneController : MonoBehaviour
         item_num = 0;
     }
     
-
-
-
+    void SetBGM()
+    {
+        if(cur_scene_no>0)
+        {
+            GameObject.Find("Bgm").GetComponent<bgmController>().StopBGM();
+        }
+        else
+        {
+            GameObject.Find("Bgm").GetComponent<bgmController>().PlayBGM();
+        }
+    }
+    void EnableBlackScreen()
+    {
+        GameObject.Find("Default_Background").GetComponent<SpriteRenderer>().sortingLayerName = "Front";
+    }
+    void DisableBlackScreen()
+    {
+        GameObject.Find("Default_Background").GetComponent<SpriteRenderer>().sortingLayerName = "BackGround";
+    }
     void ShuffleScene()
     {
-        for (int i = scenes_cnt-1; i >0; i--)
+        for (int i = scenes_cnt-1; i >1; i--)
         {
             int rnd = Random.Range(0,i+1);
             var temp = scenes[rnd];
@@ -137,10 +212,12 @@ public class Scene
 {
     public Sprite _uninteracted, _interacted;
     public GameObject _map;
-    public Scene(Sprite S_uninteracted, Sprite S_interacted, GameObject map)
+    public string _text;
+    public Scene(Sprite S_uninteracted, Sprite S_interacted, GameObject map,string text)
     {
         _uninteracted = S_uninteracted;
         _interacted = S_interacted;
         _map = map;
+        _text = text;
     }
 }

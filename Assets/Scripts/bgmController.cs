@@ -5,6 +5,7 @@ using UnityEngine;
 public class bgmController : MonoBehaviour
 {
     private AudioSource audioSource;
+    private float dis;
     // Update is called once per frame
     private void Start()
     {
@@ -12,11 +13,15 @@ public class bgmController : MonoBehaviour
     }
     private void Update()
     {
-        
-        float dis = (GameObject.Find("Ending_Trigger").GetComponent<Transform>().position - GameObject.Find("Player").GetComponent<Transform>().position).sqrMagnitude;
-        if (dis > 1f)
-            dis = 1f;
-        SetVolume(dis);
+
+        dis = (GameObject.Find("Ending_Trigger").GetComponent<Transform>().position - GameObject.Find("Player").GetComponent<Transform>().position).sqrMagnitude;
+        float stero_pan = GameObject.Find("Ending_Trigger").GetComponent<Transform>().position.x - GameObject.Find("Player").GetComponent<Transform>().position.x;
+        audioSource.panStereo = stero_pan;
+        audioSource.volume = 1/dis;
+    }
+    public float GetDis()
+    {
+        return this.dis;
     }
     public void PlayBGM()
     {
@@ -26,9 +31,6 @@ public class bgmController : MonoBehaviour
     {
         audioSource.Stop();
     }
-    public void SetVolume(float volume)
-    {
-        audioSource.volume = volume;
-    }
+
 }
 

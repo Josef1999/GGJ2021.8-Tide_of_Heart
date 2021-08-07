@@ -21,6 +21,8 @@ public class item : MonoBehaviour
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
+        if (collision.name != "Player")
+            return;
         if (is_interacted)
             return;
         if (Input.GetKey(KeyCode.Space))
