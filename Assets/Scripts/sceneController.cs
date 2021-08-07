@@ -103,7 +103,7 @@ public class sceneController : MonoBehaviour
     {
         GameObject.Find("Player").GetComponent<playerControl>().DisableMove();
         yield return new WaitForSeconds(waitTime);
-        //等待之后执行的动作  
+        //锟饺达拷之锟斤拷执锟叫的讹拷锟斤拷  
         DisableBlackScreen();
         GameObject.Find("Player").GetComponent<playerControl>().EnableMove();
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = true;
@@ -159,9 +159,12 @@ public class sceneController : MonoBehaviour
         generated_pos.Add(new Vector3(GameObject.Find("Player").GetComponent<Transform>().position.x, GameObject.Find("Player").GetComponent<Transform>().position.y));
         for (int i = 0; i < item_num; i++)
         {
-            var Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
-            while (generated_pos.Contains(Pos))
-                Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
+            //var Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
+            //while (generated_pos.Contains(Pos))
+                //Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
+            int row = Random.Range(constant.MIN_ROW, constant.MAX_ROW + 1);
+            int col = Random.Range(constant.MIN_COL, constant.MAX_COL + 1);
+            var Pos = new Vector3((float) (col - 0.5), (float) (row - 0.5));
             generated_pos.Add(Pos);
             items.Add(GenerateItem(Pos, "item_" + i.ToString(), S_uninteracted, S_interacted));
         }
