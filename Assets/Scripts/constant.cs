@@ -24,5 +24,10 @@ class constant
     public const float MIN_ITEM_GENERATION_HEIGHT = MIN_PLAYER_MOVABLE_HEIGHT;
     public const float MAX_ITEM_GENERATION_WIDTH = MAX_PLAYER_MOVABLE_WIDTH;
     public const float MIN_ITEM_GENERATION_WIDTH = MIN_PLAYER_MOVABLE_WIDTH;
+
+    public const int MIN_ROW = -3;
+    public const int MAX_ROW = 2;
+    public const int MIN_COL = -4;
+    public const int MAX_COL = 5;
 }
 
