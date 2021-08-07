@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Assets.Scripts.constant;
+
 public class playerControl : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -47,7 +47,7 @@ public class playerControl : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         transform.Translate(new Vector3(horizontalInput, verticalInput, 0) * moveSpeed * Time.deltaTime);
- 
+
 
     }
 

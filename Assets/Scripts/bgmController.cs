@@ -16,9 +16,17 @@ public class bgmController : MonoBehaviour
         float dis = (GameObject.Find("Ending_Trigger").GetComponent<Transform>().position - GameObject.Find("Player").GetComponent<Transform>().position).sqrMagnitude;
         if (dis > 1f)
             dis = 1f;
-        set_volume(dis);
+        SetVolume(dis);
     }
-    public void set_volume(float volume)
+    public void PlayBGM()
+    {
+        audioSource.Play();
+    }
+    public void StopBGM()
+    {
+        audioSource.Stop();
+    }
+    public void SetVolume(float volume)
     {
         audioSource.volume = volume;
     }

@@ -38,6 +38,24 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Invisible
+    uniqueID: 2159326773
+    locked: 0
+  - name: BackGround
+    uniqueID: 493359667
+    locked: 0
+  - name: Map
+    uniqueID: 1994380581
+    locked: 0
+  - name: Player
+    uniqueID: 917267247
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Object
+    uniqueID: 2835148527
+    locked: 0
+  - name: Front
+    uniqueID: 3828829917
     locked: 0
