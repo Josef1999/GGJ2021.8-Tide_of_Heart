@@ -9,14 +9,14 @@ public class playerControl : MonoBehaviour
     {
         
     }
-    bgmController BGM;
+
     // Update is called once per frame
     void Update()
     {
 
         
         float dis = (GameObject.Find("Ending_Trigger").GetComponent<Transform>().position - this.GetComponent<Transform>().position).sqrMagnitude;
-        print("Distance to Ending_Trigger"+dis.ToString());
+        //print("Distance to Ending_Trigger"+dis.ToString());
         float x = this.GetComponent<Transform>().position.x;
 		float y = this.GetComponent<Transform>().position.y;
         if (x > constant.MAX_PLAYER_MOVABLE_WIDTH)

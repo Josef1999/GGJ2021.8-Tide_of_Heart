@@ -15,5 +15,9 @@ namespace Assets.Scripts.constant
         public const float MAX_PLAYER_MOVABLE_WIDTH = 2f;
         public const float MIN_PLAYER_MOVABLE_WIDTH = -2f;
 
+        public const float MAX_ITEM_GENERATION_HEIGHT = MAX_PLAYER_MOVABLE_HEIGHT * 0.8F;
+        public const float MIN_ITEM_GENERATION_HEIGHT = MIN_PLAYER_MOVABLE_WIDTH;
+        public const float MAX_ITEM_GENERATION_WIDTH = MAX_PLAYER_MOVABLE_WIDTH;
+        public const float MIN_ITEM_GENERATION_WIDTH = MIN_PLAYER_MOVABLE_WIDTH;
     }
 }
