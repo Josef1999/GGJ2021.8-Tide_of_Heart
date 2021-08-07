@@ -43,7 +43,7 @@ public class playerControl : MonoBehaviour
         }
         
 
-        float moveSpeed = 10;
+        float moveSpeed = 5;
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         transform.Translate(new Vector3(horizontalInput, verticalInput, 0) * moveSpeed * Time.deltaTime);

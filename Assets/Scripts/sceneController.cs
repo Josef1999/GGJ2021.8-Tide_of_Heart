@@ -12,6 +12,7 @@ public class sceneController : MonoBehaviour
     private int cur_scene_no;
     private int scenes_cnt;
     private int passed_scenes_cnt;
+    private List<string> Reminder;
     private List<Scene> scenes;
 
     private GameObject cur_map;
@@ -41,9 +42,10 @@ public class sceneController : MonoBehaviour
     void UI_Update()
     {
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().text = TaskStatus();
-        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().text = passed_scenes_cnt.ToString();
+        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().color = Color.yellow;
+        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().text = "$: "+passed_scenes_cnt.ToString();
         GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().text = scenes[cur_scene_no]._text;
-        GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().text = "";
+        GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().text = passed_scenes_cnt < Reminder.Count ? Reminder[passed_scenes_cnt] :"";
     }
     string TaskStatus()
     {
@@ -55,7 +57,11 @@ public class sceneController : MonoBehaviour
         var target_icons = Resources.LoadAll("Target_Icon", typeof(Sprite));
         var maps = Resources.LoadAll("Map", typeof(GameObject));
         var texts = Resources.LoadAll("Text");
-        
+        var clips = Resources.LoadAll("Sound_Effect");
+        TextAsset level_reminder = Resources.Load<TextAsset>("Level_Reminder");
+        Reminder = new List<string>( level_reminder.text.Split('\n'));
+
+
         scenes_cnt = maps.Length;
         scenes = new List<Scene>();
         for (int i = 0; i < scenes_cnt; i++)
@@ -64,7 +70,8 @@ public class sceneController : MonoBehaviour
                 (Sprite)target_icons[i * 2], 
                 (Sprite)target_icons[i * 2 + 1], 
                 (GameObject)maps[i], 
-                texts[i].ToString()
+                texts[i].ToString(),
+                (AudioClip)clips[i]
                 )
                 );
         }
@@ -74,6 +81,7 @@ public class sceneController : MonoBehaviour
     }
     void UI_ON()
     {
+
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = true;
         GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().enabled = true;
         GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().enabled = true;
@@ -81,9 +89,11 @@ public class sceneController : MonoBehaviour
     }
     void UI_Off()
     {
+
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = false;
         GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().enabled = false;
         GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().enabled = false;
+        GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().text = " ";
         GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().enabled = false;
 
     }
@@ -110,7 +120,6 @@ public class sceneController : MonoBehaviour
     {
         GameObject.Find("Player").GetComponent<playerControl>().DisableMove();
         yield return new WaitForSeconds(waitTime);
-        //�ȴ�֮��ִ�еĶ���  
         DisableBlackScreen();
         GameObject.Find("Player").GetComponent<playerControl>().EnableMove();
         UI_ON();
@@ -124,11 +133,11 @@ public class sceneController : MonoBehaviour
             Destroy(cur_map);
         cur_map = Instantiate(scenes[cur_scene_no]._map);
         cur_map.transform.position = new Vector3(0, 0);
-        GenerateItems(scenes[cur_scene_no]._uninteracted, scenes[cur_scene_no]._interacted);
+        GenerateItems(scenes[cur_scene_no]);
 
     }
 
-    GameObject GenerateItem(Vector3 Pos, string name, Sprite S_uninteracted, Sprite S_interacted,bool is_icon=false)
+    GameObject GenerateItem(Vector3 Pos, string name, Scene s,bool is_icon=false)
     {
         GameObject target = new GameObject();
         target.transform.position = Pos;
@@ -140,8 +149,10 @@ public class sceneController : MonoBehaviour
         target.AddComponent<CircleCollider2D>();
         target.GetComponent<CircleCollider2D>().isTrigger = true;
 
+        target.AddComponent<AudioSource>();
+        target.GetComponent<AudioSource>().clip = s._clip;
         target.AddComponent<SpriteRenderer>();
-        target.GetComponent<SpriteRenderer>().sprite = S_uninteracted;
+        target.GetComponent<SpriteRenderer>().sprite = s._uninteracted;
         if (is_icon)
         {
             target.GetComponent<Transform>().localScale = constant.ICON_SCALE;
@@ -150,7 +161,7 @@ public class sceneController : MonoBehaviour
         
         target.AddComponent<item>();
         target.GetComponent<item>().obj_name = name;
-        target.GetComponent<item>().SetSprite(S_uninteracted, S_interacted);
+        target.GetComponent<item>().SetSprite(s._uninteracted, s._interacted);
         return target;
     }
     void True_Ending()
@@ -163,25 +174,34 @@ public class sceneController : MonoBehaviour
     {
         interacted_item_num++;
     }
-    void GenerateItems(Sprite S_uninteracted, Sprite S_interacted)
+    void GenerateItems(Scene s)
     {
         interacted_item_num = 0;
         item_num = Random.Range(3, 6);
         items = new List<GameObject>();
         HashSet<Vector3> generated_pos = new HashSet<Vector3>();
-        generated_pos.Add(new Vector3(GameObject.Find("Player").GetComponent<Transform>().position.x, GameObject.Find("Player").GetComponent<Transform>().position.y));
+        Vector3 Pos;
+        int row = Random.Range(constant.MIN_ROW, constant.MAX_ROW + 1);
+        int col = Random.Range(constant.MIN_COL, constant.MAX_COL + 1);
+        Pos = new Vector3((float)(col - 0.5), (float)(row - 0.5));
+        generated_pos.Add(Pos);
         for (int i = 0; i < item_num; i++)
         {
             //var Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
             //while (generated_pos.Contains(Pos))
-                //Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
-            int row = Random.Range(constant.MIN_ROW, constant.MAX_ROW + 1);
-            int col = Random.Range(constant.MIN_COL, constant.MAX_COL + 1);
-            var Pos = new Vector3((float) (col - 0.5), (float) (row - 0.5));
+            //Pos = new Vector3(Random.Range(constant.MIN_ITEM_GENERATION_WIDTH, constant.MAX_ITEM_GENERATION_WIDTH), Random.Range(constant.MIN_ITEM_GENERATION_HEIGHT, constant.MAX_ITEM_GENERATION_HEIGHT));
+
+            do
+            {
+                row = Random.Range(constant.MIN_ROW, constant.MAX_ROW + 1);
+                col = Random.Range(constant.MIN_COL, constant.MAX_COL + 1);
+                Pos = new Vector3((float)(col - 0.5), (float)(row - 0.5));
+            } while (generated_pos.Contains(Pos));
+            
             generated_pos.Add(Pos);
-            items.Add(GenerateItem(Pos, "item_" + i.ToString(), S_uninteracted, S_interacted));
+            items.Add(GenerateItem(Pos, "item_" + i.ToString(), s));
         }
-        items.Add(GenerateItem(constant.ICON_POS, "item_0", S_uninteracted, S_interacted,true));
+        items.Add(GenerateItem(constant.ICON_POS, "item_0", s,true));
     }
     void DestoryItems()
     {
@@ -230,11 +250,13 @@ public class Scene
     public Sprite _uninteracted, _interacted;
     public GameObject _map;
     public string _text;
-    public Scene(Sprite S_uninteracted, Sprite S_interacted, GameObject map,string text)
+    public AudioClip _clip;
+    public Scene(Sprite S_uninteracted, Sprite S_interacted, GameObject map,string text, AudioClip clip)
     {
         _uninteracted = S_uninteracted;
         _interacted = S_interacted;
         _map = map;
         _text = text;
+        _clip = clip;
     }
 }

@@ -68,6 +68,7 @@
     <None Include="Assets\Resources\Text\3.restaurant.txt" />
     <None Include="Assets\Resources\Text\0.beach.txt" />
     <None Include="Assets\Resources\Text\2.construction_site.txt" />
+    <None Include="Assets\Resources\Level_Reminder.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

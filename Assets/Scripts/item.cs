@@ -34,6 +34,7 @@ public class item : MonoBehaviour
 
             is_interacted = true;
             GameObject.Find(obj_name).GetComponent<SpriteRenderer>().sprite = this.interacted;
+            GameObject.Find(obj_name).GetComponent<AudioSource>().Play();
         }
     }
 
