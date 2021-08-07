@@ -4,10 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 
 class constant
 {
+    public static Vector3 ICON_POS { get { return new Vector3(3.4f, 4.6f); } }
+    public static Vector3 ICON_SCALE { get { return new Vector3(0.5f, 0.5f); } }
     public const float SCREEN_WIDTH = 1920f;
     public const float SCREEN_HEIGHT = 1080f;
     public const float MAX_PLAYER_MOVABLE_HEIGHT = 1.6f;

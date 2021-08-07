@@ -55,7 +55,7 @@ public class sceneController : MonoBehaviour
         var target_icons = Resources.LoadAll("Target_Icon", typeof(Sprite));
         var maps = Resources.LoadAll("Map", typeof(GameObject));
         var texts = Resources.LoadAll("Text");
-
+        
         scenes_cnt = maps.Length;
         scenes = new List<Scene>();
         for (int i = 0; i < scenes_cnt; i++)
@@ -68,13 +68,20 @@ public class sceneController : MonoBehaviour
                 )
                 );
         }
+        print(scenes_cnt);
         cur_scene_no = 1;
         passed_scenes_cnt = 0;
     }
-    void UIOff()
+    void UI_ON()
+    {
+        GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = true;
+        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().enabled = true;
+        GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().enabled = true;
+        GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().enabled = true;
+    }
+    void UI_Off()
     {
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = false;
-
         GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().enabled = false;
         GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().enabled = false;
         GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().enabled = false;
@@ -82,7 +89,7 @@ public class sceneController : MonoBehaviour
     }
     void SwitchScene()
     {
-        UIOff();
+        UI_Off();
         EnableBlackScreen();
         DestoryItems();
         if (cur_scene_no >= scenes_cnt - 1)
@@ -92,8 +99,8 @@ public class sceneController : MonoBehaviour
         }
         else
             cur_scene_no++;
+        passed_scenes_cnt++;
         GenerateScene();
-        SetBGM();
         StartCoroutine(WaitAndDisableBlackScreen(1F));
  
 
@@ -106,10 +113,11 @@ public class sceneController : MonoBehaviour
         //等待之后执行的动作  
         DisableBlackScreen();
         GameObject.Find("Player").GetComponent<playerControl>().EnableMove();
-        GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = true;
+        UI_ON();
     }  
     void GenerateScene()
     {
+        SetBGM();
         print(cur_scene_no);
         print(scenes[cur_scene_no]._map.name);
         if (cur_map != null)
@@ -120,7 +128,7 @@ public class sceneController : MonoBehaviour
 
     }
 
-    GameObject GenerateItem(Vector3 Pos, string name, Sprite S_uninteracted, Sprite S_interacted)
+    GameObject GenerateItem(Vector3 Pos, string name, Sprite S_uninteracted, Sprite S_interacted,bool is_icon=false)
     {
         GameObject target = new GameObject();
         target.transform.position = Pos;
@@ -134,7 +142,12 @@ public class sceneController : MonoBehaviour
 
         target.AddComponent<SpriteRenderer>();
         target.GetComponent<SpriteRenderer>().sprite = S_uninteracted;
-
+        if (is_icon)
+        {
+            target.GetComponent<Transform>().localScale = constant.ICON_SCALE;
+            target.transform.position = Pos;
+        }
+        
         target.AddComponent<item>();
         target.GetComponent<item>().obj_name = name;
         target.GetComponent<item>().SetSprite(S_uninteracted, S_interacted);
@@ -165,6 +178,7 @@ public class sceneController : MonoBehaviour
             generated_pos.Add(Pos);
             items.Add(GenerateItem(Pos, "item_" + i.ToString(), S_uninteracted, S_interacted));
         }
+        items.Add(GenerateItem(constant.ICON_POS, "item_0", S_uninteracted, S_interacted,true));
     }
     void DestoryItems()
     {
@@ -197,7 +211,7 @@ public class sceneController : MonoBehaviour
     {
         for (int i = scenes_cnt-1; i >1; i--)
         {
-            int rnd = Random.Range(0,i+1);
+            int rnd = Random.Range(1,i+1);
             var temp = scenes[rnd];
             scenes[rnd] = scenes[i];
             scenes[i] = temp;
