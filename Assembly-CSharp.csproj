@@ -62,6 +62,8 @@
     <Compile Include="Assets\Scripts\bgmController.cs" />
     <Compile Include="Assets\Scripts\sceneController.cs" />
     <Compile Include="Assets\Scripts\item.cs" />
+    <Compile Include="Assets\Scripts\shakeCamera.cs" />
+    <Compile Include="Assets\Scripts\TypewriterEffect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Text\1.office.txt" />

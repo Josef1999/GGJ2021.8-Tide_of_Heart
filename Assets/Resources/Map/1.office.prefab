@@ -2389,7 +2389,7 @@ GameObject:
   - component: {fileID: 2054515841770291273}
   - component: {fileID: 2054515841770291274}
   m_Layer: 0
-  m_Name: 1
+  m_Name: 1.office
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

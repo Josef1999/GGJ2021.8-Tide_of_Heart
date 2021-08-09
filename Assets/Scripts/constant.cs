@@ -11,7 +11,7 @@ using UnityEngine;
 
 class constant
 {
-    public static Vector3 ICON_POS { get { return new Vector3(3.4f, 4.3f); } }
+    public static Vector3 ICON_POS { get { return new Vector3(3.4f,5.3f); } }
     public static Vector3 ICON_SCALE { get { return new Vector3(0.5f, 0.5f); } }
     public const float SCREEN_WIDTH = 1920f;
     public const float SCREEN_HEIGHT = 1080f;
@@ -25,8 +25,13 @@ class constant
     public const float MAX_ITEM_GENERATION_WIDTH = MAX_PLAYER_MOVABLE_WIDTH;
     public const float MIN_ITEM_GENERATION_WIDTH = MIN_PLAYER_MOVABLE_WIDTH;
 
-    public const int MIN_ROW = -3;
-    public const int MAX_ROW = 0;
+    public static Vector3 CAM_START_POS { get { return new Vector3(0f, 0.98f,-10f); } }
+
+    public static Vector3 CAM_FINAL_POS { get { return new Vector3(0f, -20f,-10f) ; }}
+
+
+    public const int MIN_ROW = -1;
+    public const int MAX_ROW = 2;
     public const int MIN_COL = -4;
     public const int MAX_COL = 5;
 }

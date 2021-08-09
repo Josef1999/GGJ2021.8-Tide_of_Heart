@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8805683557963859969, guid: 08052af2a04aa1b4bb830cfef5893132, type: 3}
       propertyPath: m_Name
-      value: Map
+      value: 3.restaurant
       objectReference: {fileID: 0}
     - target: {fileID: 8805683557963859971, guid: 08052af2a04aa1b4bb830cfef5893132, type: 3}
       propertyPath: m_RootOrder

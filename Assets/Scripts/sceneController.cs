@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 public class sceneController : MonoBehaviour
 {
     private List<GameObject> items;
@@ -14,9 +16,12 @@ public class sceneController : MonoBehaviour
     private int passed_scenes_cnt;
     private List<string> Reminder;
     private List<Scene> scenes;
-
+    private bool end = false;
     private GameObject cur_map;
-
+    private GameObject gold_sound;
+    private GameObject camera;
+    private GameObject player;
+    private GameObject end_ui;
     void Start()
     {
         InitScenes();
@@ -25,17 +30,39 @@ public class sceneController : MonoBehaviour
 
     private void Update()
     {
-
         UI_Update();
+        if (end)
+        {
+            camera.GetComponent<shakeCamera>().enabled = false;
 
+            const float speed = 3f;
+            Vector3 PLAYER_FINAL_POS = new Vector3(player.transform.position.x, -17.8f, player.transform.position.z);
+
+            camera.transform.position = Vector3.MoveTowards(camera.transform.position, constant.CAM_FINAL_POS, speed * Time.deltaTime);
+            player.transform.position = Vector3.MoveTowards(player.transform.position, PLAYER_FINAL_POS, speed/2.0f * Time.deltaTime);
+            if(player.transform.position == PLAYER_FINAL_POS)
+                GameObject.Find("Canvas/ENDING").GetComponent<Text>().enabled = true;
+            return;
+        }
+
+        GameObject.Find("Canvas/ENDING").GetComponent<Text>().enabled = false;
 
         if (cur_scene_no == 0)
         {
-            if(GameObject.Find("Bgm").GetComponent<bgmController>().GetDis()<0.1f && Input.GetKeyDown(KeyCode.Space))
+            camera.GetComponent<shakeCamera>().enabled = true;
+            camera.GetComponent<shakeCamera>().shakeLevel = 10 - Mathf.Min(Mathf.Abs(Mathf.Log(GameObject.Find("Bgm").GetComponent<bgmController>().GetDis(), 0.8f)), 10);
+            if (GameObject.Find("Bgm").GetComponent<bgmController>().GetDis()<0.1f && Input.GetKeyDown(KeyCode.Space))
             {
                 True_Ending();
             }
         }
+        else
+        {
+           // camera.GetComponent<shakeCamera>().enabled = false;
+            camera.GetComponent<shakeCamera>().enabled = false;
+
+        }
+
         if (interacted_item_num >= item_num)
             SwitchScene();
     }
@@ -43,8 +70,9 @@ public class sceneController : MonoBehaviour
     {
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().text = TaskStatus();
         GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().color = Color.yellow;
-        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().text = "$: "+passed_scenes_cnt.ToString();
+        GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().text = "$: "+(passed_scenes_cnt*100).ToString();
         GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().text = scenes[cur_scene_no]._text;
+        GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
         GameObject.Find("Canvas/New_Player_Reminder").GetComponent<Text>().text = passed_scenes_cnt < Reminder.Count ? Reminder[passed_scenes_cnt] :"";
     }
     string TaskStatus()
@@ -53,15 +81,18 @@ public class sceneController : MonoBehaviour
         return interacted_item_num.ToString() + "/" + item_num.ToString();
     }
     void InitScenes()
-    { 
+    {
+  
         var target_icons = Resources.LoadAll("Target_Icon", typeof(Sprite));
         var maps = Resources.LoadAll("Map", typeof(GameObject));
         var texts = Resources.LoadAll("Text");
         var clips = Resources.LoadAll("Sound_Effect");
+        var bgms = Resources.LoadAll("BGM");
         TextAsset level_reminder = Resources.Load<TextAsset>("Level_Reminder");
         Reminder = new List<string>( level_reminder.text.Split('\n'));
-
-
+        gold_sound = new GameObject();
+        gold_sound.AddComponent<AudioSource>();
+        gold_sound.GetComponent<AudioSource>().clip = Resources.Load<AudioClip>("gold");
         scenes_cnt = maps.Length;
         scenes = new List<Scene>();
         for (int i = 0; i < scenes_cnt; i++)
@@ -71,17 +102,20 @@ public class sceneController : MonoBehaviour
                 (Sprite)target_icons[i * 2 + 1], 
                 (GameObject)maps[i], 
                 texts[i].ToString(),
-                (AudioClip)clips[i]
+                (AudioClip)clips[i],
+                (AudioClip)bgms[i]
                 )
                 );
         }
-        print(scenes_cnt);
+        player = GameObject.Find("Player");
+        camera = GameObject.Find("Main Camera");
         cur_scene_no = 1;
         passed_scenes_cnt = 0;
+
     }
     void UI_ON()
     {
-
+        
         GameObject.Find("Canvas/Task_Status").GetComponent<Text>().enabled = true;
         GameObject.Find("Canvas/Task_Cnt").GetComponent<Text>().enabled = true;
         GameObject.Find("Canvas/Task_Reminder").GetComponent<Text>().enabled = true;
@@ -99,9 +133,9 @@ public class sceneController : MonoBehaviour
     }
     void SwitchScene()
     {
-        UI_Off();
-        EnableBlackScreen();
+        gold_sound.GetComponent<AudioSource>().Play();
         DestoryItems();
+        scenes[cur_scene_no]._bgm.GetComponent<AudioSource>().Pause();
         if (cur_scene_no >= scenes_cnt - 1)
         {
             cur_scene_no = 0;
@@ -111,18 +145,20 @@ public class sceneController : MonoBehaviour
             cur_scene_no++;
         passed_scenes_cnt++;
         GenerateScene();
-        StartCoroutine(WaitAndDisableBlackScreen(1F));
- 
+        StartCoroutine(WaitAndDisableBlackScreen(0.5F));
+        
 
     }
 
     IEnumerator WaitAndDisableBlackScreen(float waitTime)
     {
-        GameObject.Find("Player").GetComponent<playerControl>().DisableMove();
+        UI_Off();
+        EnableBlackScreen();
         yield return new WaitForSeconds(waitTime);
         DisableBlackScreen();
-        GameObject.Find("Player").GetComponent<playerControl>().EnableMove();
+        player.GetComponent<playerControl>().EnableMove();
         UI_ON();
+        UI_Update();
     }  
     void GenerateScene()
     {
@@ -166,9 +202,14 @@ public class sceneController : MonoBehaviour
     }
     void True_Ending()
     {
-        GameObject.Find("Player").GetComponent<playerControl>().DisableMove();
-
+        player.GetComponent<playerControl>().DisableMove();
+        UI_Off();
         print("True Ending");
+        end = true;
+        GameObject.Find("Bgm").GetComponent<bgmController>().MaxVolume();
+
+
+
     }
     public void AddItemNum()
     {
@@ -201,7 +242,7 @@ public class sceneController : MonoBehaviour
             generated_pos.Add(Pos);
             items.Add(GenerateItem(Pos, "item_" + i.ToString(), s));
         }
-        items.Add(GenerateItem(constant.ICON_POS, "item_0", s,true));
+        //items.Add(GenerateItem(constant.ICON_POS, "item_0", s,true));
     }
     void DestoryItems()
     {
@@ -213,7 +254,8 @@ public class sceneController : MonoBehaviour
     
     void SetBGM()
     {
-        if(cur_scene_no>0)
+        scenes[cur_scene_no]._bgm.GetComponent<AudioSource>().Play();
+        if (cur_scene_no>0)
         {
             GameObject.Find("Bgm").GetComponent<bgmController>().StopBGM();
         }
@@ -251,12 +293,18 @@ public class Scene
     public GameObject _map;
     public string _text;
     public AudioClip _clip;
-    public Scene(Sprite S_uninteracted, Sprite S_interacted, GameObject map,string text, AudioClip clip)
+    public GameObject _bgm = new GameObject();
+    public Scene(Sprite S_uninteracted, Sprite S_interacted, GameObject map,string text, AudioClip clip, AudioClip bgm)
     {
         _uninteracted = S_uninteracted;
         _interacted = S_interacted;
         _map = map;
         _text = text;
         _clip = clip;
+        _bgm.AddComponent<AudioSource>();
+        _bgm.GetComponent<AudioSource>().volume = 0.8f;
+
+        _bgm.GetComponent<AudioSource>().clip = bgm;
+        
     }
 }

@@ -6,10 +6,16 @@ public class bgmController : MonoBehaviour
 {
     private AudioSource audioSource;
     private float dis;
+    private bool max_vol;
     // Update is called once per frame
     private void Start()
     {
+        max_vol = false;
         audioSource = GetComponent<AudioSource>();
+    }
+    public void MaxVolume()
+    {
+        max_vol = true;
     }
     private void Update()
     {
@@ -17,7 +23,10 @@ public class bgmController : MonoBehaviour
         dis = (GameObject.Find("Ending_Trigger").GetComponent<Transform>().position - GameObject.Find("Player").GetComponent<Transform>().position).sqrMagnitude;
         float stero_pan = GameObject.Find("Ending_Trigger").GetComponent<Transform>().position.x - GameObject.Find("Player").GetComponent<Transform>().position.x;
         audioSource.panStereo = stero_pan;
-        audioSource.volume = 1/dis;
+        if (max_vol)
+            audioSource.volume = 1;
+        else
+            audioSource.volume = 1/dis;
     }
     public float GetDis()
     {
